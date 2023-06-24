@@ -9,7 +9,7 @@ const getUsers = (req, res) => {
     })
     .catch(() => {
       res.status(ERROR_CODE.SERVER_ERROR).send({
-        message: 'На сервере произошла ошибка',
+        message: 'На сервере произошла ошибка1',
       });
     });
 };
@@ -30,7 +30,7 @@ const getUserById = (req, res) => {
           .send({ message: 'Пользователь по указанному id не найден' });
       } else {
         res.status(ERROR_CODE.SERVER_ERROR).send({
-          message: 'На сервере произошла ошибка',
+          message: '',
         });
       }
     });
@@ -38,12 +38,11 @@ const getUserById = (req, res) => {
 
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
-  userModel
-    .create({
-      name,
-      about,
-      avatar,
-    })
+  userModel.create({
+    name,
+    about,
+    avatar,
+  })
     .then((user) => {
       res.status(ERROR_CODE.CREATED).send(user);
     })
@@ -54,7 +53,7 @@ const createUser = (req, res) => {
         });
       } else {
         res.status(ERROR_CODE.SERVER_ERROR).send({
-          message: 'На сервере произошла ошибка',
+          message: 'На сервере произошла ошибка2',
         });
       }
     });
@@ -85,7 +84,7 @@ const updateUser = (req, res) => {
         });
       } else {
         res.status(ERROR_CODE.SERVER_ERROR).send({
-          message: 'На сервере произошла ошибка',
+          message: 'На сервере произошла ошибка3',
         });
       }
     });
@@ -112,7 +111,7 @@ const updateUserAvatar = (req, res) => {
         });
       } else {
         res.status(ERROR_CODE.SERVER_ERROR).send({
-          message: 'На сервере произошла ошибка',
+          message: 'На сервере произошла ошибка4',
           err: err.message,
           stack: err.stack,
         });

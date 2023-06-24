@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
 
 const userSchema = new mongoose.Schema(
   {
@@ -18,14 +17,8 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
       required: [true, 'Поле "avatar" должно быть заполнено'],
-      validate(value) {
-        if (!validator.isURL(value)) {
-          throw new Error('Некорректный URL');
-        }
-      },
     },
   },
-  { versionKey: false },
 );
 
 module.exports = mongoose.model('user', userSchema);

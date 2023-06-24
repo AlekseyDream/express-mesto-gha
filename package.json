@@ -2,7 +2,7 @@
   "name": "express-mesto-gha",
   "version": "1.0.0",
   "description": "# Проект Mesto фронтенд + бэкенд",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
@@ -22,6 +22,5 @@
     "express": "^4.18.2",
     "mongoose": "^7.3.1",
     "validator": "^13.9.0"
-  },
-  "keywords": []
+  }
 }
