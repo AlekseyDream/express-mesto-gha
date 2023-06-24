@@ -1,14 +1,13 @@
 const userModel = require('../models/user');
-const { ERROR_CODE } = require('../utils/constants');
 
 const getUsers = (req, res) => {
   userModel
     .find({})
     .then((users) => {
-      res.status(ERROR_CODE.OK).send(users);
+      res.status(200).send(users);
     })
     .catch(() => {
-      res.status(ERROR_CODE.SERVER_ERROR).send({
+      res.status(500).send({
         message: 'На сервере произошла ошибка1',
       });
     });
@@ -22,14 +21,14 @@ const getUserById = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         res
-          .status(ERROR_CODE.BAD_REQUEST)
+          .status(400)
           .send({ message: 'Переданы некорректные данные.' });
       } else if (err.message === 'NotFound') {
         res
-          .status(ERROR_CODE.NOT_FOUND)
+          .status(404)
           .send({ message: 'Пользователь по указанному id не найден' });
       } else {
-        res.status(ERROR_CODE.SERVER_ERROR).send({
+        res.status(404).send({
           message: '',
         });
       }
@@ -38,21 +37,15 @@ const getUserById = (req, res) => {
 
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
-  userModel.create({
-    name,
-    about,
-    avatar,
-  })
-    .then((user) => {
-      res.status(ERROR_CODE.CREATED).send(user);
-    })
+  userModel.create({ name, about, avatar })
+    .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE.BAD_REQUEST).send({
+        res.status(400).send({
           message: 'Переданы некорректные данные при создании пользователя.',
         });
       } else {
-        res.status(ERROR_CODE.SERVER_ERROR).send({
+        res.status(500).send({
           message: 'На сервере произошла ошибка2',
         });
       }
@@ -60,18 +53,16 @@ const createUser = (req, res) => {
 };
 
 const updateUser = (req, res) => {
-  const userId = req.user._id;
   const { name, about } = req.body;
-  userModel
-    .findByIdAndUpdate(
-      userId,
-      { name, about },
-      { new: true, runValidators: true },
-    )
+  userModel.findByIdAndUpdate(
+    req.user._id,
+    { name, about },
+    { new: true, runValidators: true },
+  )
     .then((user) => {
       if (!user) {
         res
-          .status(ERROR_CODE.NOT_FOUND)
+          .status(405)
           .send({ message: 'Пользователь по указанному id не найден.' });
       } else {
         res.send({ user });
@@ -79,11 +70,11 @@ const updateUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE.BAD_REQUEST).send({
+        res.status(400).send({
           message: 'Переданы некорректные данные при обновлении профиля.',
         });
       } else {
-        res.status(ERROR_CODE.SERVER_ERROR).send({
+        res.status(500).send({
           message: 'На сервере произошла ошибка3',
         });
       }
@@ -91,14 +82,16 @@ const updateUser = (req, res) => {
 };
 
 const updateUserAvatar = (req, res) => {
-  const userId = req.user._id;
   const { avatar } = req.body;
-  userModel
-    .findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
+  userModel.findByIdAndUpdate(
+    req.user._id,
+    { avatar },
+    { new: true, runValidators: true },
+  )
     .then((user) => {
       if (!user) {
         res
-          .status(ERROR_CODE.NOT_FOUND)
+          .status(404)
           .send({ message: 'Пользователь по указанному id не найден.' });
       } else {
         res.send({ user });
@@ -106,14 +99,12 @@ const updateUserAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE.BAD_REQUEST).send({
+        res.status(400).send({
           message: 'Переданы некорректные данные при обновлении аватара.',
         });
       } else {
-        res.status(ERROR_CODE.SERVER_ERROR).send({
+        res.status(500).send({
           message: 'На сервере произошла ошибка4',
-          err: err.message,
-          stack: err.stack,
         });
       }
     });
