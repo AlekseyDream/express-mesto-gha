@@ -1,33 +1,34 @@
 const User = require('../models/user');
+const { ERROR_CODE } = require('../utils/constants');
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => {
-      res.status(200).send(users);
+      res.status(ERROR_CODE.OK).send(users);
     })
     .catch(() => {
-      res.status(500).send({
-        message: 'На сервере произошла ошибка1',
+      res.status(ERROR_CODE.SERVER_ERROR).send({
+        message: 'Internal Server Error.',
       });
     });
 };
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .orFail(new Error('NotFound'))
+    .orFail(new Error('NotFound.'))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
         res
-          .status(400)
+          .status(ERROR_CODE.BAD_REQUEST)
           .send({ message: 'Переданы некорректные данные.' });
       } else if (err.message === 'NotFound') {
         res
-          .status(404)
-          .send({ message: 'Пользователь по указанному id не найден' });
+          .status(ERROR_CODE.NOT_FOUND)
+          .send({ message: 'Not Found.' });
       } else {
-        res.status(500).send({
-          message: '',
+        res.status(ERROR_CODE.SERVER_ERROR).send({
+          message: 'Internal Server Error.',
         });
       }
     });
@@ -36,15 +37,15 @@ const getUserById = (req, res) => {
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(ERROR_CODE.CREATED).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        res.status(ERROR_CODE.BAD_REQUEST).send({
           message: 'Переданы некорректные данные при создании пользователя.',
         });
       } else {
-        res.status(500).send({
-          message: 'На сервере произошла ошибка2',
+        res.status(ERROR_CODE.SERVER_ERROR).send({
+          message: 'Internal Server Error.',
         });
       }
     });
@@ -60,20 +61,20 @@ const updateUser = (req, res) => {
     .then((user) => {
       if (!user) {
         res
-          .status(404)
-          .send({ message: 'Пользователь по указанному id не найден.' });
+          .status(ERROR_CODE.NOT_FOUND)
+          .send({ message: 'Not Found.' });
       } else {
         res.send({ user });
       }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        res.status(ERROR_CODE.BAD_REQUEST).send({
           message: 'Переданы некорректные данные при обновлении профиля.',
         });
       } else {
-        res.status(500).send({
-          message: 'На сервере произошла ошибка3',
+        res.status(ERROR_CODE.SERVER_ERROR).send({
+          message: 'Internal Server Error.',
         });
       }
     });
@@ -89,20 +90,20 @@ const updateUserAvatar = (req, res) => {
     .then((user) => {
       if (!user) {
         res
-          .status(404)
-          .send({ message: 'Пользователь по указанному id не найден.' });
+          .status(ERROR_CODE.NOT_FOUND)
+          .send({ message: 'Not Found.' });
       } else {
         res.send({ user });
       }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({
+        res.status(ERROR_CODE.BAD_REQUEST).send({
           message: 'Переданы некорректные данные при обновлении аватара.',
         });
       } else {
-        res.status(500).send({
-          message: 'На сервере произошла ошибка4',
+        res.status(ERROR_CODE.SERVER_ERROR).send({
+          message: 'Internal Server Error.',
         });
       }
     });
