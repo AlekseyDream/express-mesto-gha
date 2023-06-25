@@ -1,21 +1,18 @@
 const cardModel = require('../models/card');
 
 const getCards = (req, res) => {
-  cardModel.find({}).then((cards) => {
-    res.status(200).send(cards);
-  })
-    .catch((err) => {
-      res.status(500).send({ message: err.message });
-    });
+  cardModel.find({})
+    .then((cards) => res.send(cards))
+    .catch((err) => res.status(500).send({
+      message: err.message,
+    }));
 };
 
 const createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   cardModel.create({ name, link, owner })
-    .then((card) => {
-      res.status(201).send(card);
-    })
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({
@@ -30,13 +27,12 @@ const createCard = (req, res) => {
 };
 
 const deleteCard = (req, res) => {
-  cardModel
-    .findByIdAndRemove(req.params.cardId)
+  cardModel.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
-        res
-          .status(404)
-          .send({ message: 'Карточка с указанным id не найдена.' });
+        res.status(404).send({
+          message: 'Карточка с указанным id не найдена.',
+        });
       }
       res.send({ card });
     })
@@ -61,9 +57,9 @@ const likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res
-          .status(404)
-          .send({ message: 'Передан несуществующий id карточки.' });
+        res.status(404).send({
+          message: 'Передан несуществующий id карточки.',
+        });
       } else {
         res.send({ card });
       }
@@ -89,18 +85,18 @@ const dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res
-          .status(404)
-          .send({ message: 'Передан несуществующий id карточки.' });
+        res.status(404).send({
+          message: 'Передан несуществующий id карточки.',
+        });
       } else {
         res.send({ card });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res
-          .status(400)
-          .send({ message: 'Переданы некорректные данные для снятии лайка.' });
+        res.status(400).send({
+          message: 'Переданы некорректные данные для снятии лайка.',
+        });
       } else {
         res.status(500).send({
           message: err.message,
