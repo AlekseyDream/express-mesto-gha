@@ -1,12 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const router = require('./routes');
+const bodyParser = require('body-parser');
 
 const { PORT = 3000 } = process.env;
 
-mongoose.connect('mongodb://localhost:27017/mestodb');
-
 const app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+mongoose.connect('mongodb://0.0.0.0:27017/mestodb');
 
 app.use((req, res, next) => {
   req.user = {
@@ -15,6 +17,10 @@ app.use((req, res, next) => {
 
   next();
 });
+app.use('/users', require('./routes/users'));
+app.use('/cards', require('./routes/cards'));
 
-app.use(router);
+app.all('*', (req, res) => {
+  res.status(404).send({ message: 'Неправильный путь' });
+});
 app.listen(PORT);
