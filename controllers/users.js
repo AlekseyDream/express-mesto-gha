@@ -28,7 +28,7 @@ const getUserById = (req, res) => {
           .status(404)
           .send({ message: 'Пользователь по указанному id не найден' });
       } else {
-        res.status(404).send({
+        res.status(500).send({
           message: '',
         });
       }
@@ -62,7 +62,7 @@ const updateUser = (req, res) => {
     .then((user) => {
       if (!user) {
         res
-          .status(405)
+          .status(404)
           .send({ message: 'Пользователь по указанному id не найден.' });
       } else {
         res.send({ user });
