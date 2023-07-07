@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { ERROR_CODE } = require('./utils/constants');
+const { createUser, login } = require('./controllers/users');
+const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 
@@ -9,18 +10,10 @@ app.use(express.json());
 
 mongoose.connect('mongodb://0.0.0.0:27017/mestodb');
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '649870f348dd83ba10731c03',
-  };
-
-  next();
-});
-
+app.post('/signin', login);
+app.post('/signup', createUser);
+app.use(auth);
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-app.all('*', (req, res) => {
-  res.status(ERROR_CODE.NOT_FOUND).send({ message: 'Неправильный путь' });
-});
 app.listen(PORT);
