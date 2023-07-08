@@ -8,9 +8,8 @@ const NotFoundError = require('../errors/NotFoundError');
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
-
   Card.create({ name, link, owner })
-    .then((card) => res.status(ERROR_CODE.OK).res.send(card))
+    .then((card) => res.status(ERROR_CODE.CREATED).res.send(card))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         return next(
@@ -58,10 +57,9 @@ const deleteCard = (req, res, next) => {
 };
 
 const likeCard = (req, res, next) => {
-  const likeMethod = req.method === 'PUT' ? '$addToSet' : '$pull';
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { [likeMethod]: { likes: req.user._id } },
+    { $addToSet: { likes: req.user._id } },
     { new: true },
   )
     .orFail(() => {
@@ -84,19 +82,17 @@ const dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => {
-      if (card) return res.send({ data: card });
-
-      throw new NotFoundError('Данные по указанному id не найдены');
+    .orFail(() => {
+      throw new NotFoundError('Карточка с указанным _id не найдена');
     })
+    .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err instanceof mongoose.Error
-        .ValidationError || err instanceof mongoose.Error
-        .CastError) {
-        next(new InaccurateDataError('Переданы некорректные данные при снятии лайка карточки'));
-      } else {
-        next(err);
+      if (err instanceof mongoose.Error.CastError) {
+        return next(
+          new InaccurateDataError('Передан несуществующий id карточки'),
+        );
       }
+      return next(err);
     });
 };
 
