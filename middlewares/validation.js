@@ -33,14 +33,14 @@ const userInfoValidate = celebrate({
 
 const userAvatarValidate = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().regex(REG_ID),
+    avatar: Joi.string().required().regex(REG_URL),
   }),
 });
 
 const cardValidate = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().regex(REG_ID),
+    link: Joi.string().required().regex(REG_URL),
   }),
 });
 
