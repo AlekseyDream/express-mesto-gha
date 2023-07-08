@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
 const User = require('../models/user');
 const { ERROR_CODE } = require('../utils/constants');
 const InaccurateDataError = require('../errors/InaccurateDataError');
@@ -51,7 +51,8 @@ const getUsers = (req, res, next) => {
 };
 
 const getUserById = (req, res, next) => {
-  User.findById(req.params.userId ? req.params.userId : req.user._id).orFail(() => next(new NotFoundError('NotFound')))
+  User.findById(req.params.userId ? req.params.userId : req.user._id)
+    .orFail(() => next(new NotFoundError('NotFound')))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
@@ -110,7 +111,7 @@ const login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'super-strong-secret', {
+      const token = jwt.sign({ _id: user._id }, 'super-secret-key', {
         expiresIn: '7d',
       });
       res.send({ token });
