@@ -1,4 +1,4 @@
-const ERROR_CODE = {
+module.exports.ERROR_CODE = {
   OK: 200,
   CREATED: 201,
   BAD_REQUEST: 400,
@@ -7,4 +7,5 @@ const ERROR_CODE = {
   NOT_FOUND: 404,
   SERVER_ERROR: 500,
 };
-module.exports = { ERROR_CODE };
+module.exports.REG_URL = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/;
+module.exports.REG_ID = /^[0-9a-fA-F]{24}$/;
