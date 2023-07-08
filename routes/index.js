@@ -7,4 +7,4 @@ module.exports = router;
 
 router.use('/users', userRouter);
 router.use('/cards', cardRouter);
-router.use('*', (req, res, next) => next(new NotFoundError('Ресурс не найден')));
+router.use('*', (req, res, next) => next(new NotFoundError('Не найдено')));

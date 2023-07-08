@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const Card = require('../models/card');
 const { ERROR_CODE } = require('../utils/constants');
-const InaccurateDataError = require('../errors/InaccurateDataError');
-const NotPermissionError = require('../errors/NotPermissionError');
+const BadRequestError = require('../errors/BadRequestError');
+const ForbiddenError = require('../errors/ForbiddenError');
 const NotFoundError = require('../errors/NotFoundError');
 
 const getCards = (req, res, next) => {
@@ -19,8 +19,8 @@ const createCard = (req, res, next) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         return next(
-          new InaccurateDataError(
-            'Переданы некорректные данные при создании карточки',
+          new BadRequestError(
+            'Некорректные данные при создании карточки',
           ),
         );
       }
@@ -31,24 +31,23 @@ const createCard = (req, res, next) => {
 const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .orFail(() => {
-      throw new NotFoundError('Карточка с указанным id не найдена.');
+      throw new NotFoundError('Карточка не найдена');
     })
     .then((card) => {
       if (card.owner.toString() !== req.user._id.toString()) {
-        throw new NotPermissionError('Нельзя трогать чужие карточки');
+        throw new ForbiddenError('Недопустимая операция');
       }
       card.deleteOne().then(() => {
         res.status(ERROR_CODE.OK).send({
-          message:
-            'Спасибо что воспользовались моими услугами и удалили карточку, которую я любил',
+          message: 'Карточка удалена',
         });
       });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         return next(
-          new InaccurateDataError(
-            'Переданы некорректные данные при удалении карточки',
+          new BadRequestError(
+            'Некорректные данные при удалении карточки',
           ),
         );
       }
@@ -64,13 +63,13 @@ const likeCard = (req, res, next) => {
     { new: true },
   )
     .orFail(() => {
-      throw new NotFoundError('Карточка с указанным _id не найдена');
+      throw new NotFoundError('Карточка не найдена');
     })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         return next(
-          new InaccurateDataError('Передан несуществующий id карточки'),
+          new BadRequestError('Передан несуществующий id карточки'),
         );
       }
       return next(err);

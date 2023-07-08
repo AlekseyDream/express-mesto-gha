@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const User = require('../models/user');
 const { ERROR_CODE } = require('../utils/constants');
-const InaccurateDataError = require('../errors/InaccurateDataError');
+const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
 
@@ -19,7 +19,7 @@ const getUserById = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        return next(new InaccurateDataError('Переданы некорректные данные'));
+        return next(new BadRequestError('Некорректные данные'));
       }
       return next(err);
     });
@@ -53,8 +53,8 @@ const createUser = (req, res, next) => {
       }
       if (err instanceof mongoose.Error.ValidationError) {
         return next(
-          new InaccurateDataError(
-            'Переданы некорректные данные при создании пользователя',
+          new BadRequestError(
+            'Некорректные данные при создании пользователя',
           ),
         );
       }
@@ -69,13 +69,13 @@ const updateUser = (req, res, next) => {
     { name, about },
     { new: true, runValidators: true },
   )
-    .orFail(() => next(new NotFoundError('NotFound')))
+    .orFail(() => next(new NotFoundError('Пользователь не найден')))
     .then((user) => res.send({ user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         return next(
-          new InaccurateDataError(
-            'Переданы некорректные данные при обновлении профиля',
+          new BadRequestError(
+            'Некорректные данные при обновлении профиля',
           ),
         );
       }
@@ -91,14 +91,14 @@ const updateUserAvatar = (req, res, next) => {
     { new: true, runValidators: true },
   )
     .orFail(() => {
-      throw new NotFoundError('Пользователь по указанному _id не найден');
+      throw new NotFoundError('Пользователь не найден');
     })
     .then((user) => res.send({ user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         return next(
-          new InaccurateDataError(
-            'Переданы некорректные данные при обновлении аватара',
+          new BadRequestError(
+            'Некорректные данные при обновлении аватара',
           ),
         );
       }
