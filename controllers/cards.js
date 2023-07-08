@@ -5,6 +5,12 @@ const InaccurateDataError = require('../errors/InaccurateDataError');
 const NotPermissionError = require('../errors/NotPermissionError');
 const NotFoundError = require('../errors/NotFoundError');
 
+const getCards = (req, res, next) => {
+  Card.find({})
+    .then((cards) => res.send(cards))
+    .catch(next);
+};
+
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
@@ -20,12 +26,6 @@ const createCard = (req, res, next) => {
       }
       return next(err);
     });
-};
-
-const getCards = (req, res, next) => {
-  Card.find({})
-    .then((cards) => res.send(cards))
-    .catch(next);
 };
 
 const deleteCard = (req, res, next) => {

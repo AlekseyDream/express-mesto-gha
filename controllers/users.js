@@ -7,6 +7,24 @@ const InaccurateDataError = require('../errors/InaccurateDataError');
 const ConflictError = require('../errors/ConflictError');
 const NotFoundError = require('../errors/NotFoundError');
 
+const getUsers = (req, res, next) => {
+  User.find({})
+    .then((users) => res.send(users))
+    .catch(next);
+};
+
+const getUserById = (req, res, next) => {
+  User.findById(req.params.userId ? req.params.userId : req.user._id)
+    .orFail(() => next(new NotFoundError('NotFound')))
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err instanceof mongoose.Error.CastError) {
+        return next(new InaccurateDataError('Переданы некорректные данные'));
+      }
+      return next(err);
+    });
+};
+
 const createUser = (req, res, next) => {
   const {
     name, about, avatar, password, email,
@@ -39,24 +57,6 @@ const createUser = (req, res, next) => {
             'Переданы некорректные данные при создании пользователя',
           ),
         );
-      }
-      return next(err);
-    });
-};
-
-const getUsers = (req, res, next) => {
-  User.find({})
-    .then((users) => res.send(users))
-    .catch(next);
-};
-
-const getUserById = (req, res, next) => {
-  User.findById(req.params.userId ? req.params.userId : req.user._id)
-    .orFail(() => next(new NotFoundError('NotFound')))
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        return next(new InaccurateDataError('Переданы некорректные данные'));
       }
       return next(err);
     });
