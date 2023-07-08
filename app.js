@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
+const router = require('./routes');
 const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
 const { signinValidate, signupValidate } = require('./middlewares/validation');
@@ -12,9 +13,7 @@ const app = express();
 app.use(express.json());
 app.post('/signin', signinValidate, login);
 app.post('/signup', signupValidate, createUser);
-app.use('/users', require('./routes/users'));
-app.use('/cards', require('./routes/cards'));
-
+app.use(router);
 app.use(auth);
 app.use(helmet());
 app.use(errors());
