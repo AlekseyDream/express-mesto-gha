@@ -37,11 +37,11 @@ const deleteCard = (req, res, next) => {
       if (card.owner.toString() !== req.user._id.toString()) {
         throw new ForbiddenError('Недопустимая операция');
       }
-      card.deleteOne().then(() => {
-        res.status(ERROR_CODE.OK).send({
-          message: 'Карточка удалена',
-        });
-      });
+      card.deleteOne()
+        .then(() => {
+          res.status(ERROR_CODE.OK).send({ message: 'Карточка удалена' });
+        })
+        .catch(next);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
