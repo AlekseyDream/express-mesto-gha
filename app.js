@@ -4,7 +4,6 @@ const helmet = require('helmet');
 const { errors } = require('celebrate');
 const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
-const { errorHandler } = require('./middlewares/errorHandler');
 const { signinValidate, signupValidate } = require('./middlewares/validation');
 
 const { PORT = 3000 } = process.env;
@@ -19,5 +18,11 @@ app.use('/cards', require('./routes/cards'));
 app.use(auth);
 app.use(helmet());
 app.use(errors());
-app.use(errorHandler);
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({
+    message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
+  });
+  next();
+});
 app.listen(PORT);
