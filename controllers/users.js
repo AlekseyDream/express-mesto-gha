@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
@@ -32,7 +33,7 @@ const createUser = (req, res, next) => {
           new ConflictError('Пользователь с таким email уже существует'),
         );
       }
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         return next(
           new InaccurateDataError(
             'Переданы некорректные данные при создании пользователя',
@@ -53,7 +54,7 @@ const getUserById = (req, res, next) => {
   User.findById(req.params.userId ? req.params.userId : req.user._id).orFail(() => next(new NotFoundError('NotFound')))
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         return next(new InaccurateDataError('Переданы некорректные данные'));
       }
       return next(err);
@@ -70,7 +71,7 @@ const updateUser = (req, res, next) => {
     .orFail(() => next(new NotFoundError('NotFound')))
     .then((user) => res.send({ user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         return next(
           new InaccurateDataError(
             'Переданы некорректные данные при обновлении профиля',
@@ -93,7 +94,7 @@ const updateUserAvatar = (req, res, next) => {
     })
     .then((user) => res.send({ user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         return next(
           new InaccurateDataError(
             'Переданы некорректные данные при обновлении аватара',

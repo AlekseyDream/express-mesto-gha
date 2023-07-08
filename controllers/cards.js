@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Card = require('../models/card');
 const { ERROR_CODE } = require('../utils/constants');
 const InaccurateDataError = require('../errors/InaccurateDataError');
@@ -9,9 +10,9 @@ const createCard = (req, res, next) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.send(card))
+    .then((card) => res.status(ERROR_CODE.OK).res.send(card))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         return next(
           new InaccurateDataError(
             'Переданы некорректные данные при создании карточки',
@@ -45,7 +46,7 @@ const deleteCard = (req, res, next) => {
       });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         return next(
           new InaccurateDataError(
             'Переданы некорректные данные при удалении карточки',
@@ -68,7 +69,7 @@ const likeCard = (req, res, next) => {
     })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         return next(
           new InaccurateDataError('Передан несуществующий id карточки'),
         );
@@ -89,7 +90,9 @@ const dislikeCard = (req, res, next) => {
       throw new NotFoundError('Данные по указанному id не найдены');
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
+      if (err instanceof mongoose.Error
+        .ValidationError || err instanceof mongoose.Error
+        .CastError) {
         next(new InaccurateDataError('Переданы некорректные данные при снятии лайка карточки'));
       } else {
         next(err);
