@@ -57,29 +57,10 @@ const deleteCard = (req, res, next) => {
 };
 
 const likeCard = (req, res, next) => {
+  const likeMethod = req.method === 'PUT' ? '$addToSet' : '$pull';
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: req.user._id } },
-    { new: true },
-  )
-    .orFail(() => {
-      throw new NotFoundError('Карточка с указанным _id не найдена');
-    })
-    .then((card) => res.send({ data: card }))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        return next(
-          new InaccurateDataError('Передан несуществующий id карточки'),
-        );
-      }
-      return next(err);
-    });
-};
-
-const dislikeCard = (req, res, next) => {
-  Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $pull: { likes: req.user._id } },
+    { [likeMethod]: { likes: req.user._id } },
     { new: true },
   )
     .orFail(() => {
@@ -101,5 +82,4 @@ module.exports = {
   createCard,
   deleteCard,
   likeCard,
-  dislikeCard,
 };
